@@ -1,0 +1,15 @@
+[Unit]
+Description=UpdaterPart
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill updater
+ExecStartPre=-/usr/bin/docker rm updater
+ExecStartPre=/usr/bin/docker pull naviot/scalr:old_version
+ExecStart=/usr/bin/docker run --privileged --volume=/:/rootfs --name updater naviot/scalr:old_version /code_dir/code/updater_old.sh
+ExecStop=/usr/bin/docker stop updater
+
+[Install]
+WantedBy=multi-user.target
