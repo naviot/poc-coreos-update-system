@@ -1,0 +1,16 @@
+[Unit]
+Description=ClientPart
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill updater
+ExecStartPre=-/usr/bin/docker rm updater
+ExecStartPre=/usr/bin/docker pull naviot/scalr2:old_version
+ExecStart=/usr/bin/docker run --name updater --security-opt seccomp=unconfined --stop-signal=SIGRTMIN+3 --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup -v /root/poc-coreos-update-system/code_dir:/code_dir2 -v /:/rootfs -t naviot/scalr2:old_version /code_dir/systemd/code/updater_old.sh
+ExecStop=/usr/bin/docker stop updater
+
+[Install]
+WantedBy=multi-user.target
+
